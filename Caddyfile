@@ -1,0 +1,17 @@
+{
+    http_port 8080
+    https_port 8433
+}
+
+example.com {
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+    reverse_proxy 127.0.0.1:9000
+}
+example.com {
+    tls {
+	    dns bunny {env.BUNNY_API_KEY}
+    }
+    reverse_proxy 127.0.0.1:9090
+}
