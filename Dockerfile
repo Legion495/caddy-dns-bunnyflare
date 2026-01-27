@@ -13,6 +13,7 @@ RUN xcaddy build \
 FROM caddy:alpine
 
 COPY --from=builder /usr/bin/caddy /usr/bin/caddy
+RUN chmod +x /usr/bin/caddy
 
 EXPOSE 8080 8433
 
