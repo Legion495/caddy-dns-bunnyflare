@@ -12,8 +12,15 @@ RUN xcaddy build \
 
 FROM caddy:alpine
 
+# Create and set permissions for /config
+RUN mkdir -p /config && \
+    chown -R caddy:caddy /config
+
 COPY --from=builder /usr/bin/caddy /usr/bin/caddy
 RUN chmod +x /usr/bin/caddy
+
+# Set /config as the working directory
+WORKDIR /config
 
 EXPOSE 8080 8433
 
