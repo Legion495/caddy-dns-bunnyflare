@@ -7,7 +7,7 @@ FROM caddy:builder AS builder
 # xcaddy builder
 RUN xcaddy build \
     --with github.com/caddy-dns/cloudflare \
-    --with github.com/caddy-dns/bunny \
+    --with github.com/caddy-dns/bunny
 
 FROM caddy:alpine
 
