@@ -17,7 +17,5 @@ RUN chmod +x /usr/bin/caddy
 
 EXPOSE 8080 8433
 
-USER caddy
-
 ENTRYPOINT ["caddy"]
 CMD ["run", "--config", "/config/Caddyfile"]
