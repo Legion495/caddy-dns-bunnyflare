@@ -1,0 +1,8 @@
+# Ignore common files that should not be in the image build context
+.git
+.gitignore
+node_modules
+*.log
+*.pem
+.env
+.DS_Store
