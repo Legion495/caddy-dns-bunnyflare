@@ -12,6 +12,10 @@ RUN xcaddy build \
 
 FROM caddy:alpine
 
+# Create caddy user and group
+RUN addgroup -S caddy && \
+    adduser -S caddy -G caddy
+
 # Create and set permissions for /config
 RUN mkdir -p /config && \
     chown -R caddy:caddy /config
@@ -23,6 +27,8 @@ RUN chmod +x /usr/bin/caddy
 WORKDIR /config
 
 EXPOSE 8080 8433
+
+USER caddy
 
 ENTRYPOINT ["caddy"]
 CMD ["run", "--config", "/etc/caddy/Caddyfile"]
