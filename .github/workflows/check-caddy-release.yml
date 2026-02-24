@@ -1,0 +1,72 @@
+name: Check Caddy release and run update
+
+on:
+  schedule:
+    - cron: '0 * * * *' # hourly; edit in web UI
+  workflow_dispatch: {} # allows manual run from Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  check-and-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get latest caddy release tag
+        id: get_latest
+        run: |
+          latest=$(curl -sS https://api.github.com/repos/caddyserver/caddy/releases/latest | jq -r .tag_name)
+          if [ -z "$latest" ] || [ "$latest" = "null" ]; then
+            echo "Failed to fetch latest tag" >&2
+            exit 1
+          fi
+          echo "latest=$latest" >> $GITHUB_OUTPUT
+
+      - name: Read stored tag
+        id: read_stored
+        run: |
+          if [ -f LATEST_CADDY ]; then
+            stored=$(cat LATEST_CADDY)
+          else
+            stored=""
+          fi
+          echo "stored=$stored" >> $GITHUB_OUTPUT
+
+      - name: Compare tags
+        id: compare
+        run: |
+          if [ "${{ steps.get_latest.outputs.latest }}" = "${{ steps.read_stored.outputs.stored }}" ]; then
+            echo "same=true" >> $GITHUB_OUTPUT
+          else
+            echo "same=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Exit if no new release
+        if: ${{ steps.compare.outputs.same == 'true' }}
+        run: |
+          echo "No new caddy release; nothing to do."
+
+      - name: Run update tasks for new release
+        if: ${{ steps.compare.outputs.same == 'false' }}
+        run: |
+          echo "New caddy release detected: ${{ steps.get_latest.outputs.latest }}"
+          # --- Put your update commands here ---
+          # Example placeholders:
+          # ./scripts/update-dependency.sh ${{ steps.get_latest.outputs.latest }}
+          # make build
+          echo "Performing update tasks..."
+
+      - name: Commit new tag back to repo
+        if: ${{ steps.compare.outputs.same == 'false' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          echo "${{ steps.get_latest.outputs.latest }}" > LATEST_CADDY
+          git add LATEST_CADDY
+          git commit -m "Update LATEST_CADDY to ${{ steps.get_latest.outputs.latest }}" || echo "no changes to commit"
+          git push origin HEAD:$(git rev-parse --abbrev-ref HEAD)
