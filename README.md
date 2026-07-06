@@ -1,5 +1,4 @@
-# Deprecated in favor of 
-# https://github.com/snellejelle99/caddy-modular
+# Deprecated in favor of https://github.com/snellejelle99/caddy-modular
 
 # caddy-dns-bunnyflare
 Caddy Docker Image with Cloudflare + Bunny DNS‑challenge Modules
